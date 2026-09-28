@@ -1,0 +1,66 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+option java_multiple_files = true;
+option java_package = "pt.isel.cn2026labels.contracts";
+package pt.isel.cn2026labels.contracts;
+
+service ImageProcessingService {
+  rpc SubmitImage(stream ImageUploadChunk) returns (SubmissionReference);
+  rpc GetImageAnalysisResults(SubmissionReference) returns (ImageAnalysisReport);
+  rpc FindImagesByCriteria(FilteredSearchCriteria) returns (MatchingFilesList);
+  rpc DownloadImage(DownloadRequest) returns (stream ImageDownloadChunk);
+}
+
+service InfrastructureManager {
+  rpc ScaleGrpcServers(ScalingAction) returns (ScalingStatus);
+  rpc ScaleWorkerNodes(ScalingAction) returns (ScalingStatus);
+}
+
+message ImageUploadChunk {
+  string fileName = 1;
+  bytes dataPayload = 2;
+}
+
+message SubmissionReference {
+  string requestId = 1;
+}
+
+message LabelDetail {
+  string textEnglish = 1;
+  string textPortuguese = 2;
+  float confidenceScore = 3;
+}
+
+message ImageAnalysisReport {
+  string requestId = 1;
+  string processingDate = 2;
+  repeated LabelDetail detectedLabels = 3;
+}
+
+message FilteredSearchCriteria {
+  string startDate = 1;
+  string endDate = 2;
+  string labelKeyword = 3;
+}
+
+message MatchingFilesList {
+  repeated string fileNames = 1;
+}
+
+message ScalingAction {
+  int32 desiredInstanceCount = 1;
+}
+
+message ScalingStatus {
+  string statusMessage = 1;
+  int32 activeInstances = 2;
+}
+
+message DownloadRequest {
+  string requestId = 1;
+}
+
+message ImageDownloadChunk {
+  bytes dataPayload = 1;
+  string originalFileName = 2;
+}
